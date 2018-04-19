@@ -8,10 +8,8 @@
         </el-carousel-item>
       </el-carousel>
     </div>
-
-      <div id="text" style="margin-left: 10px">
-        <br>
-        <div style="margin-left: 20px">
+    <div id="text" style="margin-left: 10px">
+        <div style="margin-left: 20px;margin-top: 10px">
           <div v-if="hotelProInfo.hotel_grade == 0">
             <p style="color: orange">暂时没有人评价哦~</p>
           </div>
@@ -56,22 +54,29 @@
             </ul>
           </div>
         </div>
-
     </div>
+    &nbsp;
+    <div >
+      <div >
+        <el-form :inline="true" :model="formSearch">
+          <el-form-item>
+            <el-date-picker v-model="formSearch.date" type="daterange"
+                            range-separator="至"
+                            start-placeholder="入住日期"
+                            end-placeholder="离店日期"
+                            :picker-options="pickerOptions1">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary"  round icon="el-icon-search">重新查询</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
+
     <div id="message">
-      <el-tabs value="first" >
+      <el-tabs value="first"  type="border-card">
         <el-tab-pane label="房型预订" name="first">
-          <!--<div style="width: 100%;background-color: white">-->
-            <!--<div v-for="item in hotelProInfo.pro_info" :key="item.pro_id">-->
-              <!--<div id="house_type">-->
-                <!--<el-carousel indicator-position="outside" height="100px">-->
-                  <!--<el-carousel-item v-for="item in item.pro_picture" :key="item">-->
-                    <!--<img :src="url+item" width="100%" height="100%">-->
-                  <!--</el-carousel-item>-->
-                <!--</el-carousel>-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</div>-->
         <el-table :data="hotelProInfo.pro_info" style="width: 100%;"
                   border  :show-header="isShow"
                   size="small">
@@ -119,8 +124,6 @@
           </el-table-column>
         </el-table>
         </el-tab-pane>
-        <el-tab-pane label="交通位置" name="second">配置管理</el-tab-pane>
-        <el-tab-pane label="酒店信息" name="third">角色管理</el-tab-pane>
         <el-tab-pane label="用户点评" name="fourth">定时任务补偿</el-tab-pane>
       </el-tabs>
     </div>
@@ -131,6 +134,14 @@
     name: 'hotelInfo',
     data: function(){
       return {
+        formSearch:{
+          date:[]
+        },
+        pickerOptions1:{
+          disabledDate:function(time){
+            return time.getTime() < (Date.now()-3600*24*1000);
+          }
+        },
         size:'.png',
         url:this.Host + '/',
         path:this.Host + '/picture/icon/',
@@ -151,6 +162,11 @@
           this.$router.push({path: '/'});
         }
       })
+      this.formSearch.date[0] = new Date();
+      var date = new Date();
+      date.setDate(date.getDate() + 1);
+      var month = date.getMonth() + 1;
+      this.formSearch.date[1] = date.getFullYear()+'-'+month+'-'+date.getDate();
     },
     filters:{
       priceFilter:function(value){
@@ -167,7 +183,6 @@
   #text { float: left; width: 41%;height: 300px;text-align: left;background-color: white}
   #message{
     width: 100%;
-    height: 500px;
     text-align: center;
     clear: both;
   }

@@ -14,7 +14,7 @@
             </el-date-picker>
           </el-form-item>
         <el-form-item>
-          <el-button type="primary"  round icon="el-icon-search">查 询</el-button>
+          <el-button type="primary"  round icon="el-icon-search" @click="search">查 询</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -65,14 +65,9 @@
             return time.getTime() < (Date.now()-3600*24*1000);
           }
         },
-        pickerOptions2:{
-          disabledDate:function(time){
-            return time.getTime() < (Date.now()-3600*24*1000);
-          }
-        },
         formSearch: {
           city: '哈尔滨',
-          date:'',
+          date:[],
           keyword:''
         },
         hotelInfo:[]
@@ -90,10 +85,18 @@
         }).catch(function(error){
           console.log(error);
         })
+      },
+      search:function(){
+        console.log(this.formSearch.date);
       }
     },
     created : function () {
       this.getHotelInfo();
+      this.formSearch.date[0] = new Date();
+      var date = new Date();
+      date.setDate(date.getDate() + 1);
+      var month = date.getMonth() + 1;
+      this.formSearch.date[1] = date.getFullYear()+'-'+month+'-'+date.getDate();
     },
     filters: {
       gradeFilter: function (value) {

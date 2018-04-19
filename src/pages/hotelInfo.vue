@@ -110,7 +110,7 @@
           <el-table-column  align="center">
             <template slot-scope="scope">
               <div v-if="scope.row.pt_restAmount == '0'">
-                <el-button type="info" round disabled >已经满房啦</el-button>
+                <el-button type="info" round disabled >已经满房啦！</el-button>
               </div>
               <div v-else>
                 <el-button type="warning" round @click="getInfo(scope.row)">预订</el-button>

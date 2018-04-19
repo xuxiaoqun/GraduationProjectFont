@@ -37,7 +37,6 @@
               <el-checkbox label="行李寄存" name="flag"></el-checkbox>
               <el-checkbox label="接送服务" name="flag"></el-checkbox>
               <el-checkbox label="健身房" name="flag"></el-checkbox>
-              <el-checkbox label="游泳池" name="flag"></el-checkbox>
             </el-checkbox-group>
           </el-form-item >
           <el-form-item label="酒店图片:" prop="picture">

@@ -21,7 +21,8 @@
     <div>
       <el-table :data="hotelInfo" style="width: 100%;"
                 border height="405px" highlight-current-row
-                :default-sort = "{prop: 'min_price', order: 'descending'}">
+                :default-sort = "{prop: 'min_price', order: 'descending'}"
+                v-loading="loading">
         <el-table-column   label="图片" align="center">
           <template slot-scope="scope">
             <img :src="url + scope.row.hotel_picture[0]" width="200px" height="80px" />
@@ -57,6 +58,7 @@
     name: 'Layout',
     data: function(){
       return {
+        loading: true,
         url:this.Host + '/',
         pickerOptions1:{
           disabledDate:function(time){
@@ -84,7 +86,7 @@
         var url = this.Host + '/getHotelProInfo';
         this.$axios.get(url).then(res => {
           this.hotelInfo  = res.data;
-          console.log(res.data);
+          this.loading = false;
         }).catch(function(error){
           console.log(error);
         })

@@ -16,15 +16,6 @@ Vue.prototype.Host = '/api'
 Vue.config.productionTip = false
 Vue.use(ElementUI);
 
-
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App},
-  template: '<App/>'
-})
 Axios.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   console.log(config.method);
@@ -36,3 +27,13 @@ Axios.interceptors.request.use(function (config) {
   // 对请求错误做些什么
   return Promise.reject(error);
 });
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  store,
+  components: { App},
+  template: '<App/>'
+})
+
+

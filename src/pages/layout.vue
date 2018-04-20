@@ -3,14 +3,16 @@
     <div >
       <el-form :inline="true" :model="formSearch">
         <el-form-item label="入住城市">
-          <el-input v-model="formSearch.city" type="text" readonly></el-input>
+          <el-input  type="text" readonly value="哈尔滨"></el-input>
         </el-form-item>
         <el-form-item>
           <el-date-picker v-model="formSearch.date" type="daterange"
                           range-separator="至"
                           start-placeholder="入住日期"
                           end-placeholder="离店日期"
-                          :picker-options="pickerOptions1">
+                          :picker-options="pickerOptions1"
+                          format="yyyy-MM-dd"
+                          value-format="yyyy-MM-dd">
             </el-date-picker>
           </el-form-item>
         <el-form-item>
@@ -66,20 +68,22 @@
           }
         },
         formSearch: {
-          city: '哈尔滨',
           date:[],
-          keyword:''
         },
         hotelInfo:[]
       }
     },
     methods:{
       getInfo:function(row){
-        this.$router.push({name: 'hotelInfo',query: { hotel_id: row.hotel_id }})
+        this.$router.push({name: 'hotelInfo',query: { hotel_id: row.hotel_id,date:this.formSearch.date}})
       },
-      getHotelInfo : function () {
+      getHotelProInfo : function () {
         var url = this.Host + '/getHotelProInfo';
-        this.$axios.get(url).then(res => {
+        var date = {
+          startDate:this.formSearch.date[0],
+          endDate:this.formSearch.date[1]
+        };
+        this.$axios.post(url,date).then(res => {
           this.hotelInfo  = res.data;
           this.loading = false;
         }).catch(function(error){
@@ -87,16 +91,23 @@
         })
       },
       search:function(){
-        console.log(this.formSearch.date);
+        this.getHotelProInfo();
       }
     },
     created : function () {
-      this.getHotelInfo();
-      this.formSearch.date[0] = new Date();
       var date = new Date();
-      date.setDate(date.getDate() + 1);
       var month = date.getMonth() + 1;
-      this.formSearch.date[1] = date.getFullYear()+'-'+month+'-'+date.getDate();
+      if(month < 10){
+        month = '0' + month;
+      }
+      var startDate = date.getFullYear()+'-'+month+'-'+date.getDate();
+      this.formSearch.date[0] = startDate
+      date.setDate(date.getDate() + 1);
+      var endDate =date.getFullYear()+'-'+month+'-'+date.getDate();
+      this.formSearch.date[1] = endDate
+    },
+    mounted:function(){
+      this.getHotelProInfo();
     },
     filters: {
       gradeFilter: function (value) {

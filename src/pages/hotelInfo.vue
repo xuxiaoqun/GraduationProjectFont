@@ -64,11 +64,13 @@
                             range-separator="至"
                             start-placeholder="入住日期"
                             end-placeholder="离店日期"
-                            :picker-options="pickerOptions1">
+                            :picker-options="pickerOptions1"
+                            format="yyyy-MM-dd"
+                            value-format="yyyy-MM-dd">
             </el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary"  round icon="el-icon-search">重新查询</el-button>
+            <el-button type="primary"  round icon="el-icon-search" @click="search">重新查询</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -118,7 +120,7 @@
                 <el-button type="info" round disabled >已经满房啦！</el-button>
               </div>
               <div v-else>
-                <el-button type="warning" round @click="getInfo(scope.row)">预订</el-button>
+                <el-button type="warning" round @click="reserve(scope.row)">预订</el-button>
               </div>
             </template>
           </el-table-column>
@@ -147,26 +149,54 @@
         path:this.Host + '/picture/icon/',
         loading:true,
         hotelProInfo:{},
-        isShow:false
+        isShow:false,
+        parm:{
+          hotel_id:'',
+          startDate:'',
+          endDate:''
+        }
+      }
+    },
+    methods:{
+      getHotelProInfoById:function () {
+        this.parm.startDate = this.formSearch.date[0];
+        this.parm.endDate = this.formSearch.date[1];
+        var url = this.Host + '/getHotelProInfoById';
+        this.$axios.post(url,this.parm).then(res => {
+          if(res.data){
+            this.hotelProInfo = res.data;
+            console.log(res.data);
+          }else{
+            this.$message.error("该酒店今天没开业！");
+            this.$router.push({path: '/'});
+          }
+        });
+      },
+      search:function(){
+        this.parm.startDate = this.formSearch.date[0];
+        this.parm.endDate = this.formSearch.date[1];
+        var url = this.Host + '/getHotelProInfoById';
+        this.$axios.post(url,this.parm).then(res => {
+          if(res.data){
+            this.hotelProInfo = res.data;
+          }else{
+            this.hotelProInfo.pro_info = [];
+          }
+        });
+      },
+      reserve : function(row){
+        console.log(row);
       }
     },
     created:function(){
-      var url = this.Host + '/getHotelProInfoById';
-      this.$axios.post(url,this.$route.query).then(res => {
-        if(res.data){
-          this.hotelProInfo = res.data;
-          console.log(res.data);
-
-        }else{
-          this.$message.error("该酒店今天没开业！");
-          this.$router.push({path: '/'});
-        }
-      })
-      this.formSearch.date[0] = new Date();
-      var date = new Date();
-      date.setDate(date.getDate() + 1);
-      var month = date.getMonth() + 1;
-      this.formSearch.date[1] = date.getFullYear()+'-'+month+'-'+date.getDate();
+      var parms = window.location.hash.split('?')[1].split('&');
+      var hotel_id = parms[0].split('=')[1];
+      var startDate = parms[1].split('=')[1];
+      var endDate = parms[2].split('=')[1];
+      this.formSearch.date[0] = startDate;
+      this.formSearch.date[1] = endDate;
+      this.parm.hotel_id = hotel_id;
+      this.getHotelProInfoById();
     },
     filters:{
       priceFilter:function(value){

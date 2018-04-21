@@ -26,8 +26,8 @@
           <p>开业时间：{{hotelProInfo.hotel_opemTime}}</p><br><br>
           <p>电话：{{hotelProInfo.hotel_phone}}</p><br><br>
           <div >
-            <ul>
-              <li v-for="item in hotelProInfo.hotel_fag" :key="item"  style="text-align: center">
+            <ul class="ui">
+              <li v-for="item in hotelProInfo.hotel_fag" :key="item"  style="text-align: center" class="li">
                 <div v-show="item == '无线上网'">
                   <img :src="path + item + size" width="30px" height="30px"/>
                 </div>
@@ -128,6 +128,52 @@
         </el-tab-pane>
         <el-tab-pane label="用户点评" name="fourth">定时任务补偿</el-tab-pane>
       </el-tabs>
+
+      <el-dialog
+        title="订单信息" :visible.sync="dialogVisible" width="40%"  center>
+        <div style="text-align: left">
+          <span style="font-size: 17px">预订信息</span><br><br>
+          <span>房型名称:</span>
+          &nbsp;&nbsp;&nbsp;
+          <span>{{order.pro_houseType}}</span><br>
+          <span>入离日期:</span>
+          &nbsp;&nbsp;&nbsp;
+          <span>{{formSearch.date[0]}}&nbsp;至&nbsp;{{formSearch.date[1]}}</span><br>
+          <span>订单总额:</span>
+          &nbsp;&nbsp;&nbsp;
+          <span style="color: red;font-size: 16px">
+            <span style="color: red;font-size: 12px">￥</span>
+            {{order.pro_price}}
+          </span><br><br>
+          <span>房间数量:</span>
+          &nbsp;&nbsp;&nbsp;
+          <el-select v-model="checkIn_Info.pro_amount" placeholder="请选择">
+            <el-option
+              v-for="item in pro_amount"
+              :key="item"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
+          <br>
+          <span style="font-size: 17px">入住信息</span><br>
+          </div>
+        <div style="width: 70%; position: relative;top: 40%;transform: translateY(20%);">
+          <el-form ref="checkIn_Info" :model="checkIn_Info" label-width="90px"
+                   label-position="left" :rules="rules" status-icon >
+            <el-form-item  label=" 入住人:" prop="name">
+              <el-input v-model="checkIn_Info.name" placeholder="入住人姓名" size="small"></el-input>
+            </el-form-item>
+            <el-form-item  label=" 联系方式:" prop="email">
+              <el-input v-model="checkIn_Info.email" placeholder="入住人邮箱" size="small"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="submit_order('checkIn_Info')">提交订单</el-button>
+      </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -135,7 +181,21 @@
   export default {
     name: 'hotelInfo',
     data: function(){
+      var validateEmail = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入入住人邮箱'));
+        }else{
+          var reg=new RegExp(/^([a-zA-Z0-9._-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/);
+          if(reg.test(value)){
+            this.flag = true;
+          }else{
+            callback(new Error('请输入正确邮箱地址'));
+          }
+          callback();
+        }
+      };
       return {
+        pro_amount:[],
         formSearch:{
           date:[]
         },
@@ -154,7 +214,23 @@
           hotel_id:'',
           startDate:'',
           endDate:''
+        },
+        checkIn_Info:{
+          name:'',
+          email:'',
+          pro_amount:''
+        },
+        order:{},
+        dialogVisible: false,
+        rules:{
+          name: [
+            { required: true, message: '请输入入住人姓名', trigger: 'blur' }
+          ],
+          email: [
+            { validator: validateEmail, trigger: 'blur', required: true }
+          ]
         }
+
       }
     },
     methods:{
@@ -185,7 +261,45 @@
         });
       },
       reserve : function(row){
-        console.log(row);
+        if (!this.$store.state.consumer.name) {
+          this.$message.warning("当前用户还未登录，请登录后再进行此操作！");
+          this.$router.push({path: '/login'});
+          return;
+        }
+        this.order = row;
+        var amount = new Array();
+        for(var i = 0; i < parseInt(row.pt_restAmount); i++){
+          amount[i] = i + 1;
+        }
+        this.pro_amount = amount;
+        this.dialogVisible = true;
+      },
+      submit_order:function(formName){
+        this.$refs[formName].validate((valid) =>{
+          if (valid) {
+            var url = this.Host + '/takeOrder';
+            var data = {
+              consumer_id:this.$store.state.consumer.id,
+              occupant_name:this.checkIn_Info.name,
+              occupant_email:this.checkIn_Info.email,
+              produce_id:this.order.pro_id,
+              arrivalDate:this.formSearch.date[0],
+              leaveDate:this.formSearch.date[1]
+            }
+            console.log(data);
+//            this.$axios.post(url,this.ruleForm2).then(res => {
+//              if(res.data) {
+//                this.$router.push({path: '/mine/orders'});
+//                this.dialogVisible = false;
+//              }else{
+//                this.$message.error('提交订单失败!');
+//              }
+//            }).catch(function(error){
+//              console.log(error);
+//            })
+
+          }
+        })
       }
     },
     created:function(){
@@ -222,12 +336,12 @@
     width: 200px;
     margin-top: 0px;
   }
-  ul {
+  .ul {
     width: 300px; /*设置足够的宽度*/
     overflow: hidden;
     white-space:nowrap; /*处理块元素中的空白符和换行符的，这个属性保证图片不换行*/
   }
-  li{
+  .li{
     list-style: none;
     float: left; /*向左排列*/
     margin-right: 15px;

@@ -22,7 +22,7 @@
     </div>
     <div>
       <el-table :data="hotelInfo" style="width: 100%;"
-                border height="405px" highlight-current-row
+                 height="405px" highlight-current-row
                 :default-sort = "{prop: 'min_price', order: 'descending'}"
                 v-loading="loading">
         <el-table-column   label="图片" align="center">

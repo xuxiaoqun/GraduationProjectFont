@@ -80,7 +80,7 @@
       <el-tabs value="first"  type="border-card">
         <el-tab-pane label="房型预订" name="first">
         <el-table :data="hotelProInfo.pro_info" style="width: 100%;"
-                  border  :show-header="isShow"
+                    :show-header="isShow"
                   size="small">
           <el-table-column   label="图片" align="left" width="800">
             <template slot-scope="scope">
@@ -135,27 +135,27 @@
           <span style="font-size: 17px">预订信息</span><br><br>
           <span>房型名称:</span>
           &nbsp;&nbsp;&nbsp;
-          <span>{{order.pro_houseType}}</span><br>
+          <span>{{pro.pro_houseType}}</span><br>
           <span>入离日期:</span>
           &nbsp;&nbsp;&nbsp;
           <span>{{formSearch.date[0]}}&nbsp;至&nbsp;{{formSearch.date[1]}}</span><br>
-          <span>订单总额:</span>
-          &nbsp;&nbsp;&nbsp;
-          <span style="color: red;font-size: 16px">
-            <span style="color: red;font-size: 12px">￥</span>
-            {{order.pro_price}}
-          </span><br><br>
           <span>房间数量:</span>
           &nbsp;&nbsp;&nbsp;
-          <el-select v-model="checkIn_Info.pro_amount" placeholder="请选择">
+          <el-select v-model="checkIn_Info.pro_amount" placeholder="请选择" size="small">
             <el-option
               v-for="item in pro_amount"
               :key="item"
               :label="item"
               :value="item">
             </el-option>
-          </el-select>
-          <br>
+          </el-select><br>
+          <span>订单总额:</span>
+          &nbsp;&nbsp;&nbsp;
+          <span style="color: red;font-size: 16px">
+            <span style="color: red;font-size: 12px">￥</span>
+            {{pro.pro_price * checkIn_Info.pro_amount}}
+          </span><br>
+          <br><br>
           <span style="font-size: 17px">入住信息</span><br>
           </div>
         <div style="width: 70%; position: relative;top: 40%;transform: translateY(20%);">
@@ -218,9 +218,9 @@
         checkIn_Info:{
           name:'',
           email:'',
-          pro_amount:''
+          pro_amount:1,
         },
-        order:{},
+        pro:{},
         dialogVisible: false,
         rules:{
           name: [
@@ -246,7 +246,7 @@
             this.$message.error("该酒店今天没开业！");
             this.$router.push({path: '/'});
           }
-        });
+        })
       },
       search:function(){
         this.parm.startDate = this.formSearch.date[0];
@@ -266,7 +266,7 @@
           this.$router.push({path: '/login'});
           return;
         }
-        this.order = row;
+        this.pro = row;
         var amount = new Array();
         for(var i = 0; i < parseInt(row.pt_restAmount); i++){
           amount[i] = i + 1;
@@ -282,21 +282,24 @@
               consumer_id:this.$store.state.consumer.id,
               occupant_name:this.checkIn_Info.name,
               occupant_email:this.checkIn_Info.email,
-              produce_id:this.order.pro_id,
+              hotel_id:this.hotelProInfo.hotel_id,
+              produce_id:this.pro.pro_id,
               arrivalDate:this.formSearch.date[0],
-              leaveDate:this.formSearch.date[1]
-            }
+              leaveDate:this.formSearch.date[1],
+              produce_amount:this.checkIn_Info.pro_amount,
+              order_total:this.checkIn_Info.pro_amount * this.pro.pro_price
+            };
             console.log(data);
-//            this.$axios.post(url,this.ruleForm2).then(res => {
-//              if(res.data) {
-//                this.$router.push({path: '/mine/orders'});
-//                this.dialogVisible = false;
-//              }else{
-//                this.$message.error('提交订单失败!');
-//              }
-//            }).catch(function(error){
-//              console.log(error);
-//            })
+            this.$axios.post(url,data).then(res => {
+              if(res.data) {
+                this.$router.push({path: '/mine/orders'});
+                this.dialogVisible = false;
+              }else{
+                this.$message.error('提交订单失败!');
+              }
+            }).catch(function(error){
+              console.log(error);
+            })
 
           }
         })

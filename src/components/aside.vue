@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height: 100%">
     <el-menu text-color="#333" active-text-color="#409EFF" router
              :default-active="active" >
       <el-menu-item index="lx">
@@ -8,12 +8,22 @@
       </el-menu-item>
       <el-menu-item index="orders">
         <i class="el-icon-location"></i>
-        <span style="text-align: center">我的订单</span>
+        <span slot="title">我的订单</span>
       </el-menu-item>
-      <el-menu-item index="evaluation">
-        <i class="el-icon-menu"></i>
-        <span slot="title">我的评价</span>
-      </el-menu-item>
+      <el-submenu index="evaluation">
+        <template slot="title">
+          <i class="el-icon-location"></i>
+          <span>我的评价</span>
+        </template>
+        <el-menu-item index="evaluation">
+          <i class="el-icon-document"></i>
+          <span slot="title">待评价</span>
+        </el-menu-item>
+        <el-menu-item index="unpaid">
+          <i class="el-icon-document"></i>
+          <span slot="title">已评价</span>
+        </el-menu-item>
+      </el-submenu>
       <el-submenu index="info">
         <template slot="title">
           <i class="el-icon-document"></i>

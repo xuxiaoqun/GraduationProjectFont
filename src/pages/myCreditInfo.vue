@@ -8,7 +8,7 @@
           <div style="width: 40%; position: relative;
               top: 35%;
               transform: translateY(-50%);"
-               v-loading="loading">
+              >
             <el-form :model="credit" status-icon ref="credit"
                      label-width="100px"  :rules="rules"
                     >
@@ -26,8 +26,11 @@
                           clearable :readonly="readonly"></el-input>
               </el-form-item>
               <el-form-item label="信用指数：" prop="creditIndex" v-if="credit.creditIndex">
-                <el-input v-model="credit.creditIndex"
-                          :readonly="readonlyAll"></el-input>
+                <div  @mouseenter="tips">
+                  <el-input v-model="credit.creditIndex"
+                            :readonly="readonlyAll"></el-input>
+                </div>
+
               </el-form-item>
               <el-form-item style="text-align: center">
                 <div v-if="credit.creditIndex">
@@ -41,6 +44,20 @@
               </el-form-item>
             </el-form>
           </div>
+        <div>
+          <el-dialog
+            title="提示"
+            :visible.sync="dialogVisible"
+            width="30%">
+            <span><span style="color: red">当信用指数>=60时</span>，预订酒店时可以先付一半金额，待入住完成再付另一半即可;</span><br><br>
+            <span><span style="color: red">当信用指数>=70时</span>，即可享受先入住后付款。</span><br><br>
+            <span>信用指数会随着您良好的记录而积累。</span>
+              <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="noTips">本次不再提示</el-button>
+              <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+              </span>
+          </el-dialog>
+        </div>
       </el-main>
       </el-container>
   </div>
@@ -63,6 +80,8 @@
         readonlyAll:true,
         modify:'修改',
         loading:true,
+        dialogVisible:false,
+        dialogVisibleAgain:'Y',
         rules:{
           phone:[
             {required: true, message: '请输入手机号', trigger: 'blur'}
@@ -143,6 +162,15 @@
           this.readonly = false;
           this.modify = '提交修改';
         }
+      },
+      tips:function(){
+        if(this.dialogVisibleAgain == 'Y'){
+          this.dialogVisible = true;
+        }
+      },
+      noTips:function(){
+        this.dialogVisible = false;
+        this.dialogVisibleAgain = 'N';
       }
     },
     created:function(){

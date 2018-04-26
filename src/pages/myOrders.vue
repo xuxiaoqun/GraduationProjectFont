@@ -171,7 +171,7 @@
             </div>
             <span slot="footer" class="dialog-footer">
               <div v-if="orderInfo.is_payment == 'N'">
-                <el-button type="warning" @click="goPayment">去付款</el-button>
+                <el-button type="warning" @click="goPayment(orderInfo.order_total)">去付款</el-button>
               </div>
               <div v-if="orderInfo.is_payment == '支付超时'">
                 <el-button type="info" >订单已失效</el-button>
@@ -186,7 +186,11 @@
             :visible.sync="payDialogVisible"
             width="30%">
             <span>选择支付方式：</span>
-            <el-radio v-model="payType" label="credit">信用支付</el-radio>
+            <el-radio v-model="payType" label="credit">
+               <el-tooltip class="item" effect="dark" content="Top Center 提示文字" placement="top">
+              <span>信用支付</span>
+            </el-tooltip>
+            </el-radio>
             <el-radio v-model="payType" label="balance">余额支付</el-radio>
             <span slot="footer" class="dialog-footer">
               <el-button @click="payDialogVisible = false">取 消</el-button>
@@ -211,13 +215,14 @@
         isShow:false,
         dialogVisible:false,
         payDialogVisible:false,
-        payType:'credit'
+        payType:'credit',
+        payAmount:0
       }
     },
     methods:{
       getOrder:function(){
         var url = this.Host + '/getOrder';
-        this.$axios.get(url).then(res => {
+        this.$axios.post(url,this.$store.state.consumer).then(res => {
           if(res.data){
             this.orderList = res.data.orderList;
             this.unpaid = res.data.unpaid;
@@ -234,13 +239,39 @@
         this.orderInfo = row;
         this.dialogVisible = true;
       },
-      goPayment:function(){
+      goPayment:function(value){
+        this.payAmount = value;
         this.payDialogVisible = true;
+        var url = this.Host + '/getCredit';
+        this.$axios.post(url,this.$store.state.consumer).then(res => {
+          if(res.data.is_credit == 'N'){
+            this.$message.error('当前用户尚未开通信用支付！请前往个人信息/个人账户处开通');
+          }
+        }).catch(function(error){
+          console.log(error);
+        })
       },
       pay:function(){
         console.log(this.payType);
-        if(this.payType == 'credit'){
-        }
+        var data = {
+          consumer_id:this.$store.state.consumer.id,
+          payAmount:this.payAmount,
+          payType:this.payType,
+          order_id:this.orderInfo.order_id,
+          hotel_id:this.orderInfo.hotel_id
+          };
+        var url = this.Host + '/goPay';
+        this.$axios.post(url,data).then(res => {
+          if(res.data){
+            this.getOrder();
+            this.$message.success('支付成功！');
+            console.log(res.data);
+          }else{
+            this.$message.error('支付失败，请稍后再试！');
+          }
+          this.payDialogVisible = false;
+          this.dialogVisible = false;
+        });
       }
     },
     filters: {

@@ -7,17 +7,52 @@
       <el-main>
 
         <div style="width: 40%; position: relative;
-              top: 35%;
-              transform: translateY(-50%);">
-          <el-form :model="form" status-icon ref="form" label-width="100px">
+              top: 0%;
+              transform: translateX(-4%);">
+          <el-form :model="account" status-icon ref="account" label-width="100px" >
             <el-form-item prop="phone" label="账户余额：" >
-              <el-input v-model="form.account" readonly>
+              <el-input v-model="account.balance" readonly>
                 <template slot="append">
                   <el-button @click="recharge" icon="el-icon-edit"  circle>充值</el-button>
                 </template>
               </el-input>
             </el-form-item>
           </el-form>
+        </div>
+        <div>
+          <el-tabs value="recharge"  type="border-card">
+            <el-tab-pane label="充值记录" name="recharge">
+              <el-table :data="rechargeBill" style="width: 100%;"
+                        highlight-current-row
+                        :show-header="isShow" >
+                <el-table-column
+                  type="index"
+                  width="75">
+                </el-table-column>
+                <el-table-column align="left">
+                  <template slot-scope="scope" >
+                    <p>{{scope.row.recharge}}</p>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+            <el-tab-pane label="消费记录" name="consume">
+
+              <el-table :data="consumeBill" style="width: 100%;"
+                        highlight-current-row
+                        :show-header="isShow" >
+                <el-table-column
+                  type="index"
+                  width="75">
+                </el-table-column>
+                <el-table-column align="left">
+                  <template slot-scope="scope" >
+                    <p>{{scope.row.consume}}</p>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+          </el-tabs>
         </div>
         <div>
           <el-dialog title="账户充值" :visible.sync="dialogVisible" width="30%">
@@ -51,10 +86,13 @@
     data: function(){
       return {
         form:{
-          balance:'0',
-          rechargeAmount:''
+          rechargeAmount:0
         },
-        dialogVisible:false
+        account:{},
+        rechargeBill:[],
+        consumeBill:[],
+        dialogVisible:false,
+        isShow:false
       }
     },
     methods:{
@@ -62,27 +100,39 @@
         this.dialogVisible = true;
       },
       sureRecharge:function(){
-        var url = this.Host + '/saveAccount';
-        this.$axios.post(url,this.$store.state.consumer).then(res => {
+        if(parseInt(this.form.rechargeAmount) <= 0){
+          this.$message.error('充值金额必须大于0！');
+          return;
+        }
+        var url = this.Host + '/updateAccount';
+        this.account.balance = parseInt(this.account.balance) + parseInt(this.form.rechargeAmount);
+        this.account.change = this.form.rechargeAmount;
+        this.$axios.post(url,this.account).then(res => {
           if(res.data){
-            this.$message.success('信用信息提交成功！');
-            this.getCredit();
+            this.$message.success('成功充值金额' + this.form.rechargeAmount);
+            this.getAccount();
           }else{
-            this.$message.error('信用信息提交失败，请稍后再试！');
+            this.$message.error('充值失败，请稍后再试！');
           }
-        });
+        })
+        this.dialogVisible = false;
       },
       getAccount:function(){
         var url = this.Host + '/getAccount';
         this.$axios.post(url,this.$store.state.consumer).then(res => {
           if(res.data){
-            this.$message.success('信用信息提交成功！');
-            this.getCredit();
+            this.account = res.data.account;
+            this.consumeBill = res.data.consumeBill;
+            this.rechargeBill = res.data.rechargeBill;
+            console.log(res.data);
           }else{
-            this.$message.error('信用信息提交失败，请稍后再试！');
+            this.$message.error('账户信息获取失败，请稍后再试！');
           }
-        });
-      }
+        })
+      },
+    },
+    created:function(){
+      this.getAccount();
     },
     components: {
       Aside

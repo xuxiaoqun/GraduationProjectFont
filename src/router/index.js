@@ -9,6 +9,7 @@ import Aside from '@/components/aside'
 import My from '@/pages/my'
 import MyBasicInfo from '@/pages/myBasicInfo'
 import MyCreditInfo from '@/pages/myCreditInfo'
+import MyAccount from '@/pages/myAccount'
 import MyOrders from '@/pages/myOrders'
 import MyEvaluation from '@/pages/myEvaluation'
 import Business from '@/pages/business'
@@ -53,6 +54,10 @@ export default new Router({
     {
       path:'/mine/creditInfo',
       component:MyCreditInfo
+    },
+    {
+      path:'/mine/account',
+      component:MyAccount
     },
     {
       path:'/mine/orders',

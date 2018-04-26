@@ -134,7 +134,12 @@
       getHotelInfo : function () {
         var url = this.Host + '/getHotelInfo';
         this.$axios.post(url,this.$store.state.consumer).then(res => {
-          this.hotelInfo  = res.data;
+          if(res.data){
+            this.hotelInfo  = res.data;
+          }else{
+            this.$message.error("获取酒店信息失败！");
+          }
+
         }).catch(function(error){
           console.log(error);
         })

@@ -37,6 +37,10 @@
           <i class="el-icon-document"></i>
           <span slot="title">信用信息</span>
         </el-menu-item>
+        <el-menu-item index="account">
+          <i class="el-icon-document"></i>
+          <span slot="title">个人账户</span>
+        </el-menu-item>
       </el-submenu>
 
 

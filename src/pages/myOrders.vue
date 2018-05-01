@@ -30,14 +30,23 @@
                 </el-table-column>
                 <el-table-column  align="center" >
                   <template slot-scope="scope">
-                    <div v-if="scope.row.is_payment == 'N'">
+                    <div v-if="scope.row.order_status == '待支付'">
                       <el-button type="warning" round @click="checkOrder(scope.row)">待付款</el-button>
                     </div>
-                    <div v-if="scope.row.is_payment == 'Y'">
-                      <el-button type="primary" round @click="checkOrder(scope.row)">已付款</el-button>
+                    <div v-if="scope.row.order_status == '待确认'">
+                      <el-button type="primary" round @click="checkOrder(scope.row)">等待商家确认</el-button>
                     </div>
-                    <div v-if="scope.row.is_payment == '支付超时'">
+                    <div v-if="scope.row.order_status == '支付超时'">
                       <el-button type="info" round @click="checkOrder(scope.row)">支付超时</el-button>
+                    </div>
+                    <div v-if="scope.row.order_status == '已确认'">
+                      <el-button type="success" round @click="checkOrder(scope.row)">待入住</el-button>
+                    </div>
+                    <div v-if="scope.row.order_status == '已拒绝'">
+                      <el-button type="info" round @click="checkOrder(scope.row)">已经没房啦</el-button>
+                    </div>
+                    <div v-if="scope.row.order_status == '已退款'">
+                      <el-button type="info" round @click="checkOrder(scope.row)">已退款</el-button>
                     </div>
                   </template>
                 </el-table-column>
@@ -57,7 +66,7 @@
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column  prop="min_price" label="价格/元" align="center" sortable>
+                <el-table-column   align="center" >
                   <template slot-scope="scope" >
                     <p>总价：{{scope.row.order_total | priceFilter}}</p>
                   </template>
@@ -69,7 +78,7 @@
                 </el-table-column>
               </el-table>
             </el-tab-pane>
-            <el-tab-pane label="待使用" name="unUsed">
+            <el-tab-pane label="待入住" name="unUsed">
 
               <el-table :data="unUsed" style="width: 100%;"
                         highlight-current-row
@@ -83,20 +92,45 @@
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column  prop="min_price" label="价格/元" align="center" sortable>
+                <el-table-column   align="center" >
                   <template slot-scope="scope" >
                     <p>总价：{{scope.row.order_total | priceFilter}}</p>
                   </template>
                 </el-table-column>
                 <el-table-column  align="center" >
                   <template slot-scope="scope" >
-                    <el-button type="primary" round @click="checkOrder(scope.row)">待使用</el-button>
+                    <el-button type="primary" round @click="checkOrder(scope.row)">待入住</el-button>
                   </template>
                 </el-table-column>
               </el-table>
             </el-tab-pane>
             <el-tab-pane label="退款/售后" name="refund/after_sales">
-              <el-badge :value="12" class="item"></el-badge>
+
+
+              <el-table :data="refund" style="width: 100%;"
+                        highlight-current-row
+                        :show-header="isShow" >
+                <el-table-column align="left">
+                  <template slot-scope="scope" >
+                    <div style="margin-left: 15px">
+                      <h3>{{scope.row.name}}({{scope.row.address}})</h3>
+                      <p>{{scope.row.produce_amount}}间,{{scope.row.houseType}}</p>
+                      <p>使用时间：{{scope.row.arrivalDate}} 至 {{scope.row.leaveDate}}</p>
+                    </div>
+                  </template>
+                </el-table-column>
+                <el-table-column   align="center" >
+                  <template slot-scope="scope" >
+                    <p>总价：{{scope.row.order_total | priceFilter}}</p>
+                  </template>
+                </el-table-column>
+                <el-table-column  align="center" >
+                  <template slot-scope="scope" >
+                    <el-button type="info" round @click="checkOrder(scope.row)">已退款</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+
             </el-tab-pane>
 
 
@@ -104,7 +138,7 @@
 
           <el-dialog
             class="my-el-dialog"
-            title="订单详情" :visible.sync="dialogVisible" width="45%" center>
+            :title="orderInfo.order_status" :visible.sync="dialogVisible" width="45%" center>
             <div style="text-align: left;padding-top: 0">
               <div style="font-size: 17px;margin-bottom: 10px">订单信息</div>
               <div >
@@ -170,14 +204,8 @@
               </div>
             </div>
             <span slot="footer" class="dialog-footer">
-              <div v-if="orderInfo.is_payment == 'N'">
+              <div v-if="orderInfo.order_status == '待支付'">
                 <el-button type="warning" @click="goPayment(orderInfo.order_total)">去付款</el-button>
-              </div>
-              <div v-if="orderInfo.is_payment == '支付超时'">
-                <el-button type="info" >订单已失效</el-button>
-              </div>
-              <div v-if="orderInfo.is_payment == 'Y'">
-                <el-button type="primary" >订单已完成</el-button>
               </div>
             </span>
           </el-dialog>
@@ -211,6 +239,7 @@
         orderList:[],
         unpaid:[],
         unUsed:[],
+        refund:[],
         orderInfo:{},
         isShow:false,
         dialogVisible:false,
@@ -227,6 +256,7 @@
             this.orderList = res.data.orderList;
             this.unpaid = res.data.unpaid;
             this.unUsed = res.data.unUsed;
+            this.refund = res.data.refund;
             console.log(res.data);
           }else{
             this.$message.error("获取订单信息失败！");
@@ -242,14 +272,14 @@
       goPayment:function(value){
         this.payAmount = value;
         this.payDialogVisible = true;
-        var url = this.Host + '/getCredit';
-        this.$axios.post(url,this.$store.state.consumer).then(res => {
-          if(res.data.is_credit == 'N'){
-            this.$message.error('当前用户尚未开通信用支付！请前往个人信息/个人账户处开通');
-          }
-        }).catch(function(error){
-          console.log(error);
-        })
+//        var url = this.Host + '/getCredit';
+//        this.$axios.post(url,this.$store.state.consumer).then(res => {
+//          if(res.data.is_credit == 'N'){
+//            this.$message.error('当前用户尚未开通信用支付！请前往个人信息/个人账户处开通');
+//          }
+//        }).catch(function(error){
+//          console.log(error);
+//        })
       },
       pay:function(){
         console.log(this.payType);
@@ -262,16 +292,21 @@
           };
         var url = this.Host + '/goPay';
         this.$axios.post(url,data).then(res => {
-          if(res.data){
+          //payStatus 0:余额不够；1:未开通信用；2:信用指数不够支付；3:支付成功
+          console.log(res.data);
+          if(res.data.payStatus == '3'){
             this.getOrder();
             this.$message.success('支付成功！');
-            console.log(res.data);
-          }else{
-            this.$message.error('支付失败，请稍后再试！');
+          }else if(res.data.payStatus == '0'){
+            this.$message.error('本次支付余额不够，请充值！');
+          }else if(res.data.payStatus == '1'){
+            this.$message.error('您还未开通信用支付，请先前往个人信用处开通！');
+          }else if(res.data.payStatus == '2'){
+            this.$message.error('您的信用指数不够本次支付！');
           }
           this.payDialogVisible = false;
           this.dialogVisible = false;
-        });
+        })
       }
     },
     filters: {

@@ -22,6 +22,7 @@
         <el-menu-item index="releaseProduct">发布房型信息</el-menu-item>
         <el-menu-item index="produceInfo">已发布房型信息</el-menu-item>
       </el-submenu>
+      <el-menu-item index="sureOrder"> <i class="el-icon-menu"></i>我的订单</el-menu-item>
     </el-menu>
   </div>
 </template>

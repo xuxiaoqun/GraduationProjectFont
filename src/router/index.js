@@ -17,6 +17,7 @@ import BusinessHotelInfo from '@/pages/businessHotelInfo'
 import BusinessReleaseHotel from '@/pages/businessReleaseHotel'
 import BusinessReleaseProduct from '@/pages/businessReProduct'
 import BusinessProInfo from '@/pages/businessProInfo'
+import BusinessSureOrder from '@/pages/businessSureOrder'
 Vue.use(Router)
 
 export default new Router({
@@ -86,6 +87,10 @@ export default new Router({
     {
       path:'/business/produceInfo',
       component:BusinessProInfo
+    },
+    {
+      path:'/business/sureOrder',
+      component:BusinessSureOrder
     }
 
   ]

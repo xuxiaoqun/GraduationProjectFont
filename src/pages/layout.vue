@@ -97,13 +97,30 @@
     created : function () {
       var date = new Date();
       var month = date.getMonth() + 1;
+      var d = date.getDate();
+      date.setDate(d + 1);
+      var nextDay = date.getDate();
+      var nextMonth = month;
+      if(d > nextDay){
+        nextMonth = nextMonth + 1;
+      }
       if(month < 10){
         month = '0' + month;
       }
-      var startDate = date.getFullYear()+'-'+month+'-'+date.getDate();
+      if(nextMonth < 10){
+        nextMonth = '0' + nextMonth;
+      }
+      if(d < 10){
+        d = '0' + d;
+      }
+      if(nextDay < 10){
+        nextDay = '0' + nextDay;
+      }
+      console.log(nextDay);
+      console.log(nextMonth);
+      var startDate = date.getFullYear()+'-'+ month+'-'+ d;
       this.formSearch.date[0] = startDate
-      date.setDate(date.getDate() + 1);
-      var endDate =date.getFullYear()+'-'+month+'-'+date.getDate();
+      var endDate =date.getFullYear()+'-'+nextMonth+'-'+nextDay;
       this.formSearch.date[1] = endDate
     },
     mounted:function(){

@@ -48,6 +48,7 @@
         var url = this.Host + '/logout';
         this.$axios.get(url).then(res => {
           if(res.data){
+//            window.localStorage.removeItem("consumer");
             this.$store.dispatch('getConsumer');
             this.$message.success('注销成功，即将跳到主页!');
             this.flag = true;
@@ -57,22 +58,19 @@
         });
       }
     },
-//    created:function(){
-//      var url = this.Host + '/getConsumer';
-//      this.$axios.get(url).then(res => {
-//        if(res.data){
-//          this.$store.commit("changeConsumer",res.data);
-//        }else{
-//          this.$message.error('您还没有登录，即将跳到主页!');
-//          this.$router.push({name: 'layout'})
-//        }
-//      });
-//    },
+    created:function(){
+
+    },
     computed: {
       name: function () {
-        if (this.$store.state.consumer.name) {
+        if(this.$store.state.consumer.name){
           this.flag = false;
           return this.$store.state.consumer.name;
+        }else if(window.localStorage.getItem("consumer")){
+          var obj = window.localStorage.getItem("consumer");
+          var json = JSON.parse(obj);
+          this.flag = false;
+          return json.name;
         }
       }
     }

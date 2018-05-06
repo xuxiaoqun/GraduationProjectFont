@@ -25,7 +25,8 @@ export default new Vuex.Store({
 
 
     changeConsumer(state,consumer){
-      state.consumer = consumer;
+      state.consumer.id = consumer.id;
+      state.consumer.name = consumer.name;
     },
     changeConsumerFild(state,obj){
       if(obj.key === 'name'){
@@ -77,11 +78,18 @@ export default new Vuex.Store({
 
     },
     getConsumer(context){
+      //if( window.localStorage.getItem("consumer")){
+      //  var obj = window.localStorage.getItem("consumer");
+      //  var json = JSON.parse(obj);
+      //  context.commit("changeConsumer",json);
+      //}
       var url = this._vm.Host + '/getConsumer';
       Axios.get(url).then(res => {
         if(res.data){
           context.commit("changeConsumer",res.data);
+          window.localStorage.setItem("consumer",JSON.stringify(res.data));
         }else{
+          window.localStorage.removeItem("consumer");
           var consumer = { name:null, id:null };
           this._vm.$message.error('当前用户还未登录，请登录后再进行此操作！!');
           context.commit("changeConsumer",consumer);

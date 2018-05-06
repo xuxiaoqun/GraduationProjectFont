@@ -1,14 +1,14 @@
 <template>
   <div>
     <h1>{{hotel.name}}({{hotel.address}})</h1>
-    <div style="width:58%" id="image">
+    <div style="width:54%" id="image">
       <el-carousel indicator-position="outside" height="300px">
         <el-carousel-item v-for="item in hotel.picture" :key="item">
           <img :src="url+item" width="100%" height="100%">
         </el-carousel-item>
       </el-carousel>
     </div>
-    <div id="text" style="margin-left: 10px">
+    <div id="text" >
         <div style="margin-left: 20px;margin-top: 10px">
           <div v-if="hotel.grade == 0">
             <p style="color: orange">暂时没有人评价哦~</p>
@@ -55,10 +55,10 @@
           </div>
         </div>
     </div>
-    &nbsp;
-    <div >
-      <div >
-        <el-form :inline="true" :model="formSearch">
+    <br>
+    <br>
+    <div style="clear: both;padding-top: 0">
+        <el-form :inline="true" :model="formSearch" style="padding-top: 10px">
           <el-form-item>
             <label style="padding-right: 5px">入住和离店日期：</label>
             <el-date-picker v-model="formSearch.date" type="daterange"
@@ -74,7 +74,6 @@
             <el-button type="primary"  round icon="el-icon-search" @click="search">重新查询</el-button>
           </el-form-item>
         </el-form>
-      </div>
     </div>
 
     <div id="message">
@@ -373,8 +372,19 @@
   }
 </script>
 <style scoped>
+  .el-form-item__content{
+    padding-bottom: 0;
+    padding-top: 10px;
+
+  }
   #image {float: left; height: 300px; background-color: white}
-  #text { float: left; width: 41%;height: 300px;text-align: left;background-color: white}
+  #text {
+    float: right;
+    width: 45%;
+    height: 300px;
+    text-align: left;
+    background-color: white;
+  }
   #message{
     width: 100%;
     text-align: center;

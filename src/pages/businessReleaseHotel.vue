@@ -189,5 +189,7 @@
   .el-main{
     height: 470px
   }
-
+  .el-checkbox{
+    margin-left: 10px;
+  }
 </style>

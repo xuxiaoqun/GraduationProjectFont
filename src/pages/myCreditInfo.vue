@@ -74,7 +74,7 @@
           phone:'',
           idCard:'',
           bankCard:'',
-          creditIndex:''
+          creditIndex:0
         },
         readonly:false,
         readonlyAll:true,

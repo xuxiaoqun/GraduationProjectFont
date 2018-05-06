@@ -20,11 +20,14 @@
             <template slot="title">商家中心</template>
           </el-menu-item>
         </el-col>
-        <el-col :span="1.5" :offset="12">
+        <el-col :span="1.5" :offset="13">
           <el-menu-item v-if="flag" index="/login">登录</el-menu-item>
         </el-col>
         <el-col :span="1.5">
           <el-menu-item v-if="flag" index="/register">注册</el-menu-item>
+        </el-col>
+        <el-col :span="2.5"  v-if="!flag" :offset="15">
+          <el-menu-item @click="logout" index="#">注销</el-menu-item>
         </el-col>
       </el-row>
     </el-menu>
@@ -40,6 +43,31 @@
 
       }
     },
+    methods:{
+      logout:function(){
+        var url = this.Host + '/logout';
+        this.$axios.get(url).then(res => {
+          if(res.data){
+            this.$store.dispatch('getConsumer');
+            this.$message.success('注销成功，即将跳到主页!');
+            this.flag = true;
+          }else{
+            this.$message.error('注销失败,请确认后重新输入!');
+          }
+        });
+      }
+    },
+//    created:function(){
+//      var url = this.Host + '/getConsumer';
+//      this.$axios.get(url).then(res => {
+//        if(res.data){
+//          this.$store.commit("changeConsumer",res.data);
+//        }else{
+//          this.$message.error('您还没有登录，即将跳到主页!');
+//          this.$router.push({name: 'layout'})
+//        }
+//      });
+//    },
     computed: {
       name: function () {
         if (this.$store.state.consumer.name) {

@@ -20,6 +20,17 @@
 
       }
     },
+    created:function(){
+//      var url = this.Host + '/getConsumer';
+//      this.$axios.get(url).then(res => {
+//        if(res.data){
+//          this.$store.commit("changeConsumer",res.data);
+//        }else{
+//          this.$message.error('您还没有登录，即将跳到主页!');
+//          this.$router.push({name: 'layout'})
+//        }
+//      });
+    },
     components:{
       Aside
     }

@@ -37,6 +37,7 @@
         var url = this.Host + '/login';
         this.$axios.post(url,this.ruleForm2).then(res => {
          if(res.data) {
+           console.log(res.data);
            this.$message.success('登录成功，即将返回上一步!');
            this.$store.commit("changeConsumer",res.data);
            window.history.back(-1);

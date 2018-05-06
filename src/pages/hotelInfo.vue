@@ -1,21 +1,21 @@
 <template>
   <div>
-    <h1>{{hotelProInfo.hotel_name}}({{hotelProInfo.hotel_address}})</h1>
+    <h1>{{hotel.name}}({{hotel.address}})</h1>
     <div style="width:58%" id="image">
       <el-carousel indicator-position="outside" height="300px">
-        <el-carousel-item v-for="item in hotelProInfo.hotel_picture" :key="item">
+        <el-carousel-item v-for="item in hotel.picture" :key="item">
           <img :src="url+item" width="100%" height="100%">
         </el-carousel-item>
       </el-carousel>
     </div>
     <div id="text" style="margin-left: 10px">
         <div style="margin-left: 20px;margin-top: 10px">
-          <div v-if="hotelProInfo.hotel_grade == 0">
+          <div v-if="hotel.grade == 0">
             <p style="color: orange">暂时没有人评价哦~</p>
           </div>
           <div v-else>
             <el-rate
-              v-model="hotelProInfo.hotel_grade"
+              v-model="hotel.grade"
               disabled
               show-score
               text-color="#ff9900"
@@ -23,11 +23,11 @@
             </el-rate>
           </div>
           <br><hr><br>
-          <p>开业时间：{{hotelProInfo.hotel_opemTime}}</p><br><br>
-          <p>电话：{{hotelProInfo.hotel_phone}}</p><br><br>
+          <p>开业时间：{{hotel.openTime}}</p><br><br>
+          <p>电话：{{hotel.phone}}</p><br><br>
           <div >
             <ul class="ui">
-              <li v-for="item in hotelProInfo.hotel_fag" :key="item"  style="text-align: center" class="li">
+              <li v-for="item in hotel.flag" :key="item"  style="text-align: center" class="li">
                 <div v-show="item == '无线上网'">
                   <img :src="path + item + size" width="30px" height="30px"/>
                 </div>
@@ -60,6 +60,7 @@
       <div >
         <el-form :inline="true" :model="formSearch">
           <el-form-item>
+            <label style="padding-right: 5px">入住和离店日期：</label>
             <el-date-picker v-model="formSearch.date" type="daterange"
                             range-separator="至"
                             start-placeholder="入住日期"
@@ -77,9 +78,9 @@
     </div>
 
     <div id="message">
-      <el-tabs value="first"  type="border-card">
-        <el-tab-pane label="房型预订" name="first">
-        <el-table :data="hotelProInfo.pro_info" style="width: 100%;"
+      <el-tabs value="produce"  type="border-card" @tab-click="getInfo">
+        <el-tab-pane label="房型预订" name="produce">
+        <el-table :data="proInfo" style="width: 100%;"
                     :show-header="isShow"
                   size="small">
           <el-table-column   label="图片" align="left" width="800">
@@ -126,7 +127,40 @@
           </el-table-column>
         </el-table>
         </el-tab-pane>
-        <el-tab-pane label="用户点评" name="fourth">定时任务补偿</el-tab-pane>
+        <el-tab-pane label="用户点评" name="evaluation">
+
+          <el-table :data="evaluation" style="width: 100%;"
+                    :show-header="isShow"
+                    size="small">
+            <el-table-column  align="left">
+              <template slot-scope="scope">
+                <div>
+                 <div>
+                   <span style="font-size: 15px">{{scope.row.consumer_name}}</span>
+                   <span style="float:right">{{scope.row.eva_date}}</span>
+                 </div>
+                 <div>
+                   <el-rate
+                     v-model="scope.row.eva_grade"
+                     disabled
+                     show-score
+                     text-color="#ff9900"
+                     score-template="{value}" style="text-align: left">
+                   </el-rate>
+                 </div>
+                  <div>
+                    <span>{{scope.row.eva_msg}}</span>
+                  </div>
+                  <div>
+                    <span>房型：</span>
+                    <span>{{scope.row.houseType}}</span>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+
+        </el-tab-pane>
       </el-tabs>
 
       <el-dialog
@@ -208,12 +242,14 @@
         url:this.Host + '/',
         path:this.Host + '/picture/icon/',
         loading:true,
-        hotelProInfo:{},
+        hotel:{},
+        proInfo:[],
+        evaluation:[],
         isShow:false,
         parm:{
           hotel_id:'',
-          startDate:'',
-          endDate:''
+          arrivalDate:'',
+          leaveDate:''
         },
         checkIn_Info:{
           name:'',
@@ -235,12 +271,10 @@
     },
     methods:{
       getHotelProInfoById:function () {
-        this.parm.startDate = this.formSearch.date[0];
-        this.parm.endDate = this.formSearch.date[1];
         var url = this.Host + '/getHotelProInfoById';
         this.$axios.post(url,this.parm).then(res => {
           if(res.data){
-            this.hotelProInfo = res.data;
+            this.hotel = res.data;
             console.log(res.data);
           }else{
             this.$message.error("该酒店今天没开业！");
@@ -249,23 +283,20 @@
         })
       },
       search:function(){
-        this.parm.startDate = this.formSearch.date[0];
-        this.parm.endDate = this.formSearch.date[1];
-        var url = this.Host + '/getHotelProInfoById';
+        this.parm.arrivalDate = this.formSearch.date[0];
+        this.parm.leaveDate = this.formSearch.date[1];
+        var url = this.Host + '/getProInfoById';
         this.$axios.post(url,this.parm).then(res => {
           if(res.data){
-            this.hotelProInfo = res.data;
+            this.proInfo = res.data;
           }else{
-            this.hotelProInfo.pro_info = [];
+            this.proInfo = [];
           }
         });
       },
       reserve : function(row){
-        if (!this.$store.state.consumer.name) {
-          this.$message.warning("当前用户还未登录，请登录后再进行此操作！");
-          this.$router.push({path: '/login'});
-          return;
-        }
+        this.$store.dispatch('getConsumer');
+
         this.pro = row;
         var amount = new Array();
         for(var i = 0; i < parseInt(row.pt_restAmount); i++){
@@ -282,7 +313,7 @@
               consumer_id:this.$store.state.consumer.id,
               occupant_name:this.checkIn_Info.name,
               occupant_email:this.checkIn_Info.email,
-              hotel_id:this.hotelProInfo.hotel_id,
+              hotel_id:this.hotel.hotel_id,
               produce_id:this.pro.pro_id,
               arrivalDate:this.formSearch.date[0],
               leaveDate:this.formSearch.date[1],
@@ -303,17 +334,33 @@
 
           }
         })
+      },
+      getInfo:function(tablePane){
+        if(tablePane.name == 'evaluation'){
+          var url = this.Host + '/getEvaluation';
+          this.$axios.post(url,this.parm).then(res => {
+            if(res.data) {
+              this.evaluation = res.data;
+              console.log(res.data);
+            }else{
+              this.$message.error('获取酒店评价信息失败，请稍后再试!');
+            }
+          }).catch(function(error){
+            console.log(error);
+          })
+        }
       }
     },
     created:function(){
       var parms = window.location.hash.split('?')[1].split('&');
       var hotel_id = parms[0].split('=')[1];
-      var startDate = parms[1].split('=')[1];
-      var endDate = parms[2].split('=')[1];
-      this.formSearch.date[0] = startDate;
-      this.formSearch.date[1] = endDate;
+      var arrivalDate = parms[1].split('=')[1];
+      var leaveDate = parms[2].split('=')[1];
+      this.formSearch.date[0] = arrivalDate;
+      this.formSearch.date[1] = leaveDate;
       this.parm.hotel_id = hotel_id;
       this.getHotelProInfoById();
+      this.search();
     },
     filters:{
       priceFilter:function(value){

@@ -40,6 +40,7 @@
 //        alert("当前用户还未登录，请登录后再进行此操作");
 //        this.$router.push({path: '/login'});
 //      }
+      this.$store.dispatch('getConsumer');
     }
   }
 </script>

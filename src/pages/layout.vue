@@ -2,10 +2,11 @@
   <div >
     <div >
       <el-form :inline="true" :model="formSearch">
-        <el-form-item label="入住城市">
+        <el-form-item label="入住城市：">
           <el-input  type="text" readonly value="哈尔滨"></el-input>
         </el-form-item>
         <el-form-item>
+          <label style="padding-right: 5px">入住和离店日期：</label>
           <el-date-picker v-model="formSearch.date" type="daterange"
                           range-separator="至"
                           start-placeholder="入住日期"
@@ -75,6 +76,7 @@
     },
     methods:{
       getInfo:function(row){
+        console.log(this);
         this.$router.push({name: 'hotelInfo',query: { hotel_id: row.hotel_id,date:this.formSearch.date}})
       },
       getHotelProInfo : function () {
@@ -91,7 +93,8 @@
         })
       },
       search:function(){
-        this.getHotelProInfo();
+        console.log(this.formSearch);
+        //this.getHotelProInfo();
       }
     },
     created : function () {
@@ -131,19 +134,19 @@
         switch(true)
         {
           case value >= 4.5:
-            return value + ' 分 很好';
+            return value + ' 分 ';
             break;
           case value >= 4:
-            return value + ' 分 好';
+            return value + ' 分 ';
             break;
           case value >= 3.5:
-            return value + ' 分 一般';
+            return value + ' 分 ';
             break;
           case value == 0:
             return  '暂时没有人评价哦';
             break;
           default:
-           return value + '差';
+           return value + '分 ';
         }
       },
       priceFilter:function(value){

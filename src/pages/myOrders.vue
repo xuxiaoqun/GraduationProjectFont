@@ -39,7 +39,7 @@
                     <div v-if="scope.row.order_status == '支付超时'">
                       <el-button type="info" round @click="checkOrder(scope.row)">支付超时</el-button>
                     </div>
-                    <div v-if="scope.row.order_status == '已确认'">
+                    <div v-if="scope.row.order_status == '待入住'">
                       <el-button type="success" round @click="checkOrder(scope.row)">待入住</el-button>
                     </div>
                     <div v-if="scope.row.order_status == '已拒绝'">
@@ -47,6 +47,12 @@
                     </div>
                     <div v-if="scope.row.order_status == '已退款'">
                       <el-button type="info" round @click="checkOrder(scope.row)">已退款</el-button>
+                    </div>
+                    <div v-if="scope.row.order_status == '已消费'">
+                      <el-button type="success" round @click="checkOrder(scope.row)">已消费</el-button>
+                    </div>
+                    <div v-if="scope.row.order_status == '已评价'">
+                      <el-button type="success" round @click="checkOrder(scope.row)">已评价</el-button>
                     </div>
                   </template>
                 </el-table-column>
@@ -99,7 +105,7 @@
                 </el-table-column>
                 <el-table-column  align="center" >
                   <template slot-scope="scope" >
-                    <el-button type="primary" round @click="checkOrder(scope.row)">待入住</el-button>
+                    <el-button type="success" round @click="checkOrder(scope.row)">待入住</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -207,6 +213,9 @@
               <div v-if="orderInfo.order_status == '待支付'">
                 <el-button type="warning" @click="goPayment(orderInfo.order_total)">去付款</el-button>
               </div>
+              <div v-if="orderInfo.order_status == '待入住'">
+                <el-button type="warning" @click="applyRefund">申请退款</el-button>
+              </div>
             </span>
           </el-dialog>
           <el-dialog
@@ -215,7 +224,7 @@
             width="30%">
             <span>选择支付方式：</span>
             <el-radio v-model="payType" label="credit">
-               <el-tooltip class="item" effect="dark" content="Top Center 提示文字" placement="top">
+               <el-tooltip class="item" effect="dark" content="请确认开通信用支付！" placement="top">
               <span>信用支付</span>
             </el-tooltip>
             </el-radio>
@@ -282,7 +291,6 @@
 //        })
       },
       pay:function(){
-        console.log(this.payType);
         var data = {
           consumer_id:this.$store.state.consumer.id,
           payAmount:this.payAmount,
@@ -303,9 +311,25 @@
             this.$message.error('您还未开通信用支付，请先前往个人信用处开通！');
           }else if(res.data.payStatus == '2'){
             this.$message.error('您的信用指数不够本次支付！');
+          }else{
+            this.$message.error('本次支付失败，请稍后再试！');
           }
           this.payDialogVisible = false;
           this.dialogVisible = false;
+        })
+      },
+      applyRefund:function(){
+        var url = this.Host + '/applyRefund';
+        this.$axios.post(url,this.orderInfo).then(res => {
+          if(res.data){
+            this.$message.success('退款已完成!');
+            this.getOrder();
+          }else{
+            this.$message.error('此次操作失败，请稍后再试！');
+          }
+          this.dialogVisible = false;
+        }).catch(function(error){
+          console.log(error);
         })
       }
     },

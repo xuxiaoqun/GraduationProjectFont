@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import Axios from 'axios'
+import router from '@/router'
 Vue.use(Vuex)
 
 const me = new Vue({});
@@ -9,8 +10,6 @@ export default new Vuex.Store({
   state:{
     consumer:{
       name:'',
-      email:'',
-      password:'',
       id:''
     },
     hotel:[]
@@ -75,6 +74,19 @@ export default new Vuex.Store({
         console.log(error);
       })
 
+    },
+    getConsumer(context){
+      var url = this._vm.Host + '/getConsumer';
+      Axios.get(url).then(res => {
+        if(res.data){
+          context.commit("changeConsumer",res.data);
+        }else{
+          var consumer = { name:null, id:null };
+          this._vm.$message.error('当前用户还未登录，请登录后再进行此操作！!');
+          context.commit("changeConsumer",consumer);
+          router.push({name: 'login'})
+        }
+      });
     }
 
   }

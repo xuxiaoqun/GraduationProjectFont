@@ -5,6 +5,7 @@ import Axios from 'axios'
 import router from '@/router'
 Vue.use(Vuex)
 
+
 const me = new Vue({});
 export default new Vuex.Store({
   state:{

@@ -134,9 +134,9 @@
       }
     },
     created: function () {
-      if (this.$store.state.consumer.name) {
-        this.form1= this.$store.state.consumer;
-      }
+
+        this.form1=  JSON.parse(window.localStorage.getItem("consumer"));
+
     }
   }
 </script>

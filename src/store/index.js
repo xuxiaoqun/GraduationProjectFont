@@ -48,6 +48,7 @@ export default new Vuex.Store({
       Axios.post(url,consumer).then(res => {
         if(res.data) {
           this._vm.$message.success("信息变更成功！");
+          window.localStorage.setItem("consumer",JSON.stringify(consumer));
         }else{
           this._vm.$message.error("信息变更失败！");
         }

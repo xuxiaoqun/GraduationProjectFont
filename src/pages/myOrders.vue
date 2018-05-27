@@ -260,7 +260,7 @@
     methods:{
       getOrder:function(){
         var url = this.Host + '/getOrder';
-        this.$axios.post(url,this.$store.state.consumer).then(res => {
+        this.$axios.post(url, JSON.parse(window.localStorage.getItem("consumer"))).then(res => {
           if(res.data){
             this.orderList = res.data.orderList;
             this.unpaid = res.data.unpaid;

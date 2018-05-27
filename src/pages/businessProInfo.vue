@@ -137,7 +137,7 @@
       },
       getProInfo : function () {
         var url = this.Host + '/getProInfo';
-        this.$axios.post(url,this.$store.state.consumer).then(res => {
+        this.$axios.post(url, JSON.parse(window.localStorage.getItem("consumer"))).then(res => {
           this.proInfo  = res.data;
           console.log(this.proInfo);
         }).catch(function(error){

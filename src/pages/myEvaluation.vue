@@ -115,7 +115,7 @@
     methods:{
       getUsedOrder:function(){
         var url = this.Host + '/getUsedOrder';
-        this.$axios.post(url,this.$store.state.consumer).then(res => {
+        this.$axios.post(url, JSON.parse(window.localStorage.getItem("consumer"))).then(res => {
           if(res.data){
             this.evaluation = res.data.evaluation;
             this.noEvaluation = res.data.noEvaluation;

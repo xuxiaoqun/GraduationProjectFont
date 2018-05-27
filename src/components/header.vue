@@ -48,9 +48,11 @@
         var url = this.Host + '/logout';
         this.$axios.get(url).then(res => {
           if(res.data){
-//            window.localStorage.removeItem("consumer");
-            this.$store.dispatch('getConsumer');
+            window.localStorage.removeItem("consumer");
+            var consumer = { name:null, id:null };
+            this.$store.commit("changeConsumer",consumer);
             this.$message.success('注销成功，即将跳到主页!');
+            this.$router.push({path: '/'})
             this.flag = true;
           }else{
             this.$message.error('注销失败,请确认后重新输入!');

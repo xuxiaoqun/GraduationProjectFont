@@ -11,7 +11,9 @@ export default new Vuex.Store({
   state:{
     consumer:{
       name:'',
-      id:''
+      id:'',
+      email:'',
+      password:""
     },
     hotel:[]
     //webUrl:'http://localhost:8081/',
@@ -27,6 +29,8 @@ export default new Vuex.Store({
     changeConsumer(state,consumer){
       state.consumer.id = consumer.id;
       state.consumer.name = consumer.name;
+      state.consumer.email = consumer.email;
+      state.consumer.password = consumer.password;
     },
     changeConsumerFild(state,obj){
       if(obj.key === 'name'){

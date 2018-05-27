@@ -294,8 +294,11 @@
         });
       },
       reserve : function(row){
-        this.$store.dispatch('getConsumer');
-
+        if( !window.localStorage.getItem("consumer")){
+          this.$message.error('当前用户还未登录，请登录后再进行此操作！!');
+          this.$router.push({path: '/login'})
+          return;
+        }
         this.pro = row;
         var amount = new Array();
         for(var i = 0; i < parseInt(row.pt_restAmount); i++){
@@ -342,7 +345,7 @@
               this.evaluation = res.data;
               console.log(res.data);
             }else{
-              this.$message.error('获取酒店评价信息失败，请稍后再试!');
+              this.evaluation = [];
             }
           }).catch(function(error){
             console.log(error);

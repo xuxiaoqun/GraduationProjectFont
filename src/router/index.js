@@ -18,8 +18,8 @@ import BusinessReleaseHotel from '@/pages/businessReleaseHotel'
 import BusinessReleaseProduct from '@/pages/businessReProduct'
 import BusinessProInfo from '@/pages/businessProInfo'
 import BusinessSureOrder from '@/pages/businessSureOrder'
-Vue.use(Router)
 
+Vue.use(Router)
 export default new Router({
   routes: [
     {
@@ -47,7 +47,15 @@ export default new Router({
     },
     {
       path:'/mine/lx',
-      component:My
+      component:My,
+      beforeEnter:(to, from, next) =>{
+        if(window.localStorage.getItem("consumer")){
+          next();
+        }else{
+          this.a.app.$message.error('当前用户还未登录，请登录后再进行此操作！!');
+          next('/login');
+        }
+      }
     },
     {
       path:'/mine/basicInfo',
@@ -71,7 +79,15 @@ export default new Router({
     },
     {
       path:'/business/rules',
-      component:Business
+      component:Business,
+      beforeEnter:(to, from, next) =>{
+        if(window.localStorage.getItem("consumer")){
+          next();
+        }else{
+          this.a.app.$message.error('当前用户还未登录，请登录后再进行此操作！!');
+          next('/login');
+        }
+      }
     },
     {
       path:'/business/hotelInfo',
